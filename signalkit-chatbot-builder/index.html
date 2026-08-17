@@ -1,0 +1,774 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SignalKit AI - Embeddable Chatbot Builder</title>
+  <style>
+    :root {
+      --ink: #151411;
+      --paper: #f7f2e8;
+      --panel: #fffaf0;
+      --line: #252019;
+      --mint: #7ee2b8;
+      --coral: #ff795d;
+      --sky: #73b7ff;
+      --lime: #d7f66f;
+      --gold: #ffd86b;
+      --violet: #a892ff;
+      --muted: #625b50;
+      --shadow: 7px 7px 0 #151411;
+      --soft: 0 16px 40px rgba(21, 20, 17, .12);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      background:
+        linear-gradient(90deg, rgba(37,32,25,.08) 1px, transparent 1px) 0 0 / 56px 56px,
+        linear-gradient(180deg, rgba(37,32,25,.06) 1px, transparent 1px) 0 0 / 56px 56px,
+        var(--paper);
+    }
+    button, input, textarea, select { font: inherit; }
+    a { color: inherit; }
+    .shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+    .topbar {
+      position: sticky;
+      top: 12px;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin: 12px auto 0;
+      padding: 10px 12px;
+      background: rgba(255,250,240,.88);
+      border: 3px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; min-width: 210px; }
+    .mark {
+      width: 44px; height: 44px;
+      display: grid; place-items: center;
+      border: 3px solid var(--line);
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--mint), var(--gold));
+      font-weight: 950;
+      box-shadow: 4px 4px 0 var(--line);
+    }
+    .brand strong { display: block; font-size: 18px; line-height: 1; }
+    .brand span { display: block; color: var(--muted); font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+    .nav { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .nav a, .btn {
+      appearance: none;
+      border: 3px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 10px 14px;
+      font-weight: 900;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 var(--line);
+      transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+    }
+    .nav a:hover, .btn:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--line); }
+    .btn.primary { background: var(--gold); }
+    .btn.dark { background: var(--ink); color: white; }
+    .btn.small { padding: 8px 10px; font-size: 13px; box-shadow: 3px 3px 0 var(--line); }
+    .hero {
+      min-height: calc(100vh - 92px);
+      display: grid;
+      grid-template-columns: .95fr 1.05fr;
+      align-items: center;
+      gap: 38px;
+      padding: 54px 0 38px;
+    }
+    .eyebrow {
+      width: max-content;
+      padding: 8px 12px;
+      border: 3px solid var(--line);
+      border-radius: 999px;
+      background: var(--mint);
+      font-weight: 950;
+      box-shadow: 4px 4px 0 var(--line);
+      margin-bottom: 18px;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(48px, 7vw, 96px);
+      line-height: .9;
+      letter-spacing: 0;
+      max-width: 780px;
+    }
+    .hero p {
+      margin: 22px 0 0;
+      color: #3d352d;
+      font-size: clamp(18px, 2vw, 22px);
+      line-height: 1.45;
+      max-width: 620px;
+      font-weight: 650;
+    }
+    .cta-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 26px; }
+    .proof {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 30px;
+      max-width: 640px;
+    }
+    .proof div {
+      border: 3px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      padding: 12px;
+      box-shadow: 4px 4px 0 var(--line);
+      font-weight: 850;
+    }
+    .proof b { display: block; font-size: 26px; }
+    .product-stage {
+      position: relative;
+      min-height: 640px;
+    }
+    .browser, .phone, .mini-widget, .upload-chip, .code-sticker {
+      border: 3px solid var(--line);
+      box-shadow: var(--shadow);
+      background: #fff;
+    }
+    .browser {
+      position: absolute;
+      inset: 46px 0 auto 28px;
+      border-radius: 18px;
+      overflow: hidden;
+      transform: rotate(-1.4deg);
+      animation: floaty 6s ease-in-out infinite;
+    }
+    @keyframes floaty { 0%,100%{ transform: rotate(-1.4deg) translateY(0);} 50%{ transform: rotate(-1.4deg) translateY(-10px);} }
+    .browser-head {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px;
+      border-bottom: 3px solid var(--line);
+      background: var(--violet);
+    }
+    .dot { width: 12px; height: 12px; border: 2px solid var(--line); border-radius: 999px; background: var(--coral); }
+    .dot:nth-child(2) { background: var(--gold); }
+    .dot:nth-child(3) { background: var(--mint); }
+    .browser-url { margin-left: 8px; font-weight: 900; color: #3b3156; }
+    .browser-body { padding: 18px; background: #fffdf7; }
+    .builder-grid { display: grid; grid-template-columns: 210px 1fr; gap: 14px; }
+    .side {
+      border: 3px solid var(--line);
+      border-radius: 14px;
+      background: #efe8ff;
+      padding: 12px;
+    }
+    .side div {
+      padding: 10px;
+      border: 2px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      margin-bottom: 8px;
+      font-weight: 850;
+    }
+    .side div.active { background: var(--gold); }
+    .chat-preview {
+      border: 3px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      padding: 14px;
+      min-height: 330px;
+    }
+    .msg { width: fit-content; max-width: 86%; padding: 10px 12px; border: 2px solid var(--line); border-radius: 14px; margin: 8px 0; font-weight: 700; }
+    .msg.user { margin-left: auto; background: var(--sky); }
+    .msg.bot { background: var(--mint); }
+    .phone {
+      position: absolute;
+      right: 4px;
+      bottom: 18px;
+      width: 220px;
+      border-radius: 28px;
+      padding: 14px;
+      background: #151411;
+      transform: rotate(4deg);
+      color: white;
+      animation: nudge 4.8s ease-in-out infinite;
+    }
+    @keyframes nudge { 0%,100%{ transform: rotate(4deg) translateY(0);} 50%{ transform: rotate(4deg) translateY(8px);} }
+    .phone-screen { min-height: 300px; border-radius: 20px; background: #fffaf0; color: var(--ink); padding: 12px; }
+    .phone-title { font-weight: 950; margin-bottom: 10px; }
+    .mini-widget {
+      position: absolute;
+      left: 0;
+      bottom: 88px;
+      width: 250px;
+      border-radius: 18px;
+      background: var(--lime);
+      padding: 14px;
+      transform: rotate(-5deg);
+    }
+    .upload-chip {
+      position: absolute;
+      right: 140px;
+      top: 10px;
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: var(--coral);
+      font-weight: 950;
+      transform: rotate(4deg);
+    }
+    .code-sticker {
+      position: absolute;
+      left: 80px;
+      top: 10px;
+      padding: 12px;
+      border-radius: 14px;
+      background: #151411;
+      color: var(--lime);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      transform: rotate(-6deg);
+    }
+    section { padding: 56px 0; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 22px; }
+    h2 { margin: 0; font-size: clamp(34px, 4.5vw, 64px); line-height: .95; }
+    .section-head p { margin: 0; max-width: 560px; color: var(--muted); line-height: 1.45; font-weight: 700; }
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .step, .price, .feature, .tutorial-card {
+      border: 3px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      padding: 18px;
+      box-shadow: 5px 5px 0 var(--line);
+    }
+    .num { width: 44px; height: 44px; display: grid; place-items: center; border: 3px solid var(--line); border-radius: 12px; background: var(--gold); font-weight: 950; margin-bottom: 14px; }
+    .step h3, .feature h3, .price h3 { margin: 0 0 8px; font-size: 22px; }
+    .step p, .feature p, .price p { color: var(--muted); line-height: 1.45; margin: 0; font-weight: 650; }
+    .app-shell {
+      border: 4px solid var(--line);
+      border-radius: 24px;
+      box-shadow: 9px 9px 0 var(--line);
+      background: #fff;
+      overflow: hidden;
+    }
+    .app-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 14px;
+      border-bottom: 4px solid var(--line);
+      background: var(--ink);
+      color: white;
+    }
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tab {
+      border: 2px solid white;
+      background: transparent;
+      color: white;
+      border-radius: 999px;
+      padding: 8px 11px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .tab.active { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+    .app-view { display: none; padding: 20px; min-height: 560px; background: #fffdf7; }
+    .app-view.active { display: block; }
+    .split { display: grid; grid-template-columns: 360px 1fr; gap: 16px; }
+    .panel-box {
+      border: 3px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      padding: 16px;
+      box-shadow: 5px 5px 0 var(--line);
+    }
+    label { display: block; font-weight: 950; margin: 12px 0 6px; }
+    input, textarea, select {
+      width: 100%;
+      border: 3px solid var(--line);
+      border-radius: 12px;
+      padding: 11px;
+      background: #fff;
+      font-weight: 700;
+    }
+    textarea { min-height: 100px; resize: vertical; }
+    .drop {
+      display: grid; place-items: center; text-align: center;
+      min-height: 160px;
+      border: 3px dashed var(--line);
+      border-radius: 16px;
+      background: #f1fff8;
+      margin: 12px 0;
+      cursor: pointer;
+      font-weight: 900;
+    }
+    .doc-list { display: grid; gap: 8px; margin-top: 12px; }
+    .doc {
+      display: flex; justify-content: space-between; gap: 8px;
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      background: #fffaf0;
+      font-weight: 800;
+    }
+    .progress { height: 12px; border: 2px solid var(--line); border-radius: 999px; overflow: hidden; background: white; margin: 12px 0; }
+    .progress span { display: block; width: 76%; height: 100%; background: var(--mint); animation: load 2.5s ease-in-out infinite alternate; }
+    @keyframes load { from { width: 45%; } to { width: 95%; } }
+    .chat-box { min-height: 390px; display: flex; flex-direction: column; }
+    .chat-log { flex: 1; overflow: auto; padding-right: 6px; }
+    .chat-row { display: flex; gap: 8px; margin-top: 12px; }
+    .chat-row input { flex: 1; }
+    .widget-stage {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 18px;
+      align-items: start;
+    }
+    .embed-code {
+      background: #151411;
+      color: #d7f66f;
+      padding: 16px;
+      border-radius: 14px;
+      border: 3px solid var(--line);
+      overflow: auto;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 13px;
+    }
+    .widget-preview {
+      min-height: 460px;
+      border: 3px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg,#f2f8ff,#fffaf0);
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--soft);
+    }
+    .fake-site { padding: 20px; }
+    .fake-site h4 { font-size: 28px; margin: 0 0 10px; }
+    .bubble-launcher {
+      position: absolute;
+      right: 20px;
+      bottom: 20px;
+      width: 64px;
+      height: 64px;
+      display: grid; place-items: center;
+      border: 3px solid var(--line);
+      border-radius: 22px;
+      background: var(--gold);
+      font-size: 28px;
+      box-shadow: 5px 5px 0 var(--line);
+      cursor: pointer;
+    }
+    .embed-window {
+      position: absolute;
+      right: 18px;
+      bottom: 94px;
+      width: 275px;
+      border: 3px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+      background: white;
+      box-shadow: 6px 6px 0 var(--line);
+      transform-origin: bottom right;
+      animation: pop .35s ease both;
+    }
+    @keyframes pop { from { transform: scale(.78); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .embed-head { padding: 12px; background: var(--mint); border-bottom: 3px solid var(--line); font-weight: 950; }
+    .embed-body { padding: 12px; font-size: 13px; font-weight: 700; }
+    .prices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .price.featured { background: var(--ink); color: white; transform: translateY(-10px); }
+    .price.featured p { color: #e8e0d0; }
+    .price strong { display: block; font-size: 42px; margin: 12px 0; }
+    .price ul { padding-left: 20px; line-height: 1.8; font-weight: 750; }
+    .locked {
+      border: 3px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      background: #fff;
+      margin-top: 16px;
+    }
+    .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .tutorial { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .shot {
+      height: 150px;
+      border: 3px solid var(--line);
+      border-radius: 14px;
+      margin-bottom: 12px;
+      background:
+        linear-gradient(90deg, #151411 16%, transparent 16%),
+        linear-gradient(180deg, var(--violet) 25%, transparent 25%),
+        #fffaf0;
+      position: relative;
+      overflow: hidden;
+    }
+    .shot:after {
+      content: "";
+      position: absolute;
+      inset: 46px 22px 22px 86px;
+      border: 3px solid var(--line);
+      border-radius: 12px;
+      background: repeating-linear-gradient(180deg, #fff 0 22px, #eaf7ff 22px 44px);
+    }
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%) translateY(80px);
+      padding: 12px 16px;
+      border: 3px solid var(--line);
+      border-radius: 14px;
+      background: var(--mint);
+      box-shadow: 5px 5px 0 var(--line);
+      font-weight: 950;
+      opacity: 0;
+      z-index: 50;
+      transition: .22s ease;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    footer { padding: 32px 0 50px; color: var(--muted); font-weight: 750; }
+    @media (max-width: 980px) {
+      .hero, .split, .widget-stage { grid-template-columns: 1fr; }
+      .product-stage { min-height: 760px; }
+      .browser { left: 0; right: 0; }
+      .phone { right: 16px; }
+      .steps, .prices, .features, .tutorial { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .topbar { position: static; }
+      .brand { min-width: auto; }
+      .nav a { display: none; }
+      .hero { padding-top: 28px; }
+      .proof, .steps, .prices, .features, .tutorial { grid-template-columns: 1fr; }
+      .product-stage { min-height: 680px; }
+      .builder-grid { grid-template-columns: 1fr; }
+      .phone, .mini-widget, .code-sticker, .upload-chip { position: static; margin-top: 12px; transform: none; width: auto; }
+      .browser { position: static; transform: none; animation: none; }
+      .section-head { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar shell">
+    <div class="brand">
+      <div class="mark">SK</div>
+      <div><strong>SignalKit AI</strong><span>Support bots from docs</span></div>
+    </div>
+    <nav class="nav" aria-label="Main">
+      <a href="#product">Product</a>
+      <a href="#builder">Builder</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#tutorial">Demo</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero shell">
+      <div>
+        <div class="eyebrow">Launch-ready clickable prototype</div>
+        <h1>Turn company knowledge into a chatbot customers can actually use.</h1>
+        <p>Upload docs, test answers in a ChatGPT-like workspace, tune the widget, copy one embed snippet, and ship support automation before lunch.</p>
+        <div class="cta-row">
+          <a class="btn primary" href="#builder">Build a bot</a>
+          <a class="btn" href="#tutorial">See walkthrough</a>
+        </div>
+        <div class="proof">
+          <div><b>6 min</b>first bot setup</div>
+          <div><b>1 line</b>website embed</div>
+          <div><b>24/7</b>trained support</div>
+        </div>
+      </div>
+      <div class="product-stage" aria-label="Product preview">
+        <div class="code-sticker">&lt;script src="signalkit.ai/widget.js"&gt;</div>
+        <div class="upload-chip">12 docs indexed</div>
+        <div class="browser">
+          <div class="browser-head"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="browser-url">app.signalkit.ai/acme-bot</span></div>
+          <div class="browser-body">
+            <div class="builder-grid">
+              <div class="side">
+                <div class="active">Knowledge</div>
+                <div>Test chat</div>
+                <div>Widget</div>
+                <div>Leads</div>
+              </div>
+              <div class="chat-preview">
+                <div class="msg bot">I found this in your refund policy: annual plans can be refunded within 14 days.</div>
+                <div class="msg user">Can I add it to Webflow?</div>
+                <div class="msg bot">Yes. Copy the embed code and paste it before the closing body tag.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mini-widget"><b>Widget tone:</b><br>friendly, concise, cites source pages</div>
+        <div class="phone">
+          <div class="phone-screen">
+            <div class="phone-title">Live website preview</div>
+            <div class="msg bot">Hi, I am Acme Assistant. Ask about pricing, onboarding, or docs.</div>
+            <div class="msg user">Do you support Slack?</div>
+            <div class="msg bot">Yes, on Growth and Scale plans.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="product" class="shell">
+      <div class="section-head">
+        <h2>Designed like a real SaaS, not a disposable demo.</h2>
+        <p>Every screen pushes the user toward a working chatbot: onboard, upload, test, embed, upgrade when value is obvious.</p>
+      </div>
+      <div class="steps">
+        <div class="step"><div class="num">1</div><h3>Create workspace</h3><p>Company, website URL, tone, handoff rules, and launch goal in one focused flow.</p></div>
+        <div class="step"><div class="num">2</div><h3>Upload knowledge</h3><p>PDF, help center articles, Notion exports, product docs, and sales one-pagers.</p></div>
+        <div class="step"><div class="num">3</div><h3>Test answers</h3><p>Ask hard questions, inspect sources, rewrite bad answers, and pin approved replies.</p></div>
+        <div class="step"><div class="num">4</div><h3>Embed anywhere</h3><p>Brand the widget, gate premium features, copy code, and publish to your site.</p></div>
+      </div>
+    </section>
+
+    <section id="builder" class="shell">
+      <div class="section-head">
+        <h2>Clickable builder app.</h2>
+        <p>Use the tabs, upload mock docs, send a test message, copy embed code, and open the pricing gate.</p>
+      </div>
+      <div class="app-shell">
+        <div class="app-top">
+          <strong>SignalKit Workspace: Acme Cloud</strong>
+          <div class="tabs">
+            <button class="tab active" data-view="onboarding">Onboarding</button>
+            <button class="tab" data-view="knowledge">Docs</button>
+            <button class="tab" data-view="chat">Test chat</button>
+            <button class="tab" data-view="widget">Widget</button>
+            <button class="tab" data-view="paywall">Paywall</button>
+          </div>
+        </div>
+
+        <div class="app-view active" id="onboarding">
+          <div class="split">
+            <div class="panel-box">
+              <h3>Bot setup</h3>
+              <label>Company</label>
+              <input value="Acme Cloud">
+              <label>Primary goal</label>
+              <select><option>Reduce repetitive support tickets</option><option>Qualify inbound leads</option><option>Help users onboard faster</option></select>
+              <label>Bot personality</label>
+              <textarea>Helpful, precise, calm. Always cite the source document. Escalate billing and security questions.</textarea>
+              <button class="btn primary" id="continueDocs">Continue to docs</button>
+            </div>
+            <div class="panel-box">
+              <h3>Launch checklist</h3>
+              <div class="doc"><span>Brand voice captured</span><b>done</b></div>
+              <div class="doc"><span>Fallback rules</span><b>done</b></div>
+              <div class="doc"><span>Knowledge base</span><b>next</b></div>
+              <div class="doc"><span>Widget installed</span><b>later</b></div>
+              <div class="locked"><b>Smart suggestion</b><p>Start with 15-30 high-intent docs: pricing, refunds, onboarding, security, and integrations.</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="app-view" id="knowledge">
+          <div class="split">
+            <div class="panel-box">
+              <h3>Upload docs</h3>
+              <div class="drop" id="dropZone">Drop files here or click to add mock docs</div>
+              <button class="btn primary" id="addDocs">Add product docs</button>
+              <div class="progress"><span></span></div>
+              <p><b>Index status:</b> 12 docs processed, 3 docs queued</p>
+            </div>
+            <div class="panel-box">
+              <h3>Knowledge sources</h3>
+              <div class="doc-list" id="docList">
+                <div class="doc"><span>pricing-page.pdf</span><b>ready</b></div>
+                <div class="doc"><span>refund-policy.md</span><b>ready</b></div>
+                <div class="doc"><span>security-faq.pdf</span><b>ready</b></div>
+              </div>
+              <div class="locked"><b>Pro gated feature</b><p>Auto-sync from Notion, Google Drive, Zendesk, and sitemap crawling.</p><button class="btn small openPaywall">Unlock sync</button></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="app-view" id="chat">
+          <div class="split">
+            <div class="panel-box chat-box">
+              <h3>Test your chatbot</h3>
+              <div class="chat-log" id="chatLog">
+                <div class="msg bot">Ask me about pricing, refunds, integrations, or onboarding.</div>
+                <div class="msg user">Can I embed you on a Webflow site?</div>
+                <div class="msg bot">Yes. Open Widget, copy the script, and paste it before the closing body tag. Source: installation-guide.md</div>
+              </div>
+              <div class="chat-row">
+                <input id="chatInput" value="What happens if the bot is unsure?">
+                <button class="btn primary" id="sendChat">Send</button>
+              </div>
+            </div>
+            <div class="panel-box">
+              <h3>Answer controls</h3>
+              <label>Strictness</label>
+              <select><option>Only answer from uploaded docs</option><option>Use docs + safe general knowledge</option></select>
+              <label>Escalation</label>
+              <select><option>Create ticket after 2 uncertain answers</option><option>Ask for email first</option></select>
+              <div class="locked"><b>Scale gated feature</b><p>Source-level analytics: discover unanswered questions and missing docs.</p><button class="btn small openPaywall">See analytics plans</button></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="app-view" id="widget">
+          <div class="widget-stage">
+            <div class="panel-box">
+              <h3>Embeddable widget builder</h3>
+              <label>Accent color</label>
+              <select id="themeSelect"><option value="mint">Mint launch</option><option value="gold">Golden helpdesk</option><option value="coral">Coral sales</option></select>
+              <label>Welcome message</label>
+              <textarea id="welcomeText">Hi, I am Acme Assistant. Ask me about pricing, integrations, refunds, or onboarding.</textarea>
+              <label>Embed code</label>
+              <pre class="embed-code" id="embedCode">&lt;script src="https://cdn.signalkit.ai/widget.js"
+  data-bot="acme-cloud"
+  data-theme="mint"&gt;&lt;/script&gt;</pre>
+              <button class="btn primary" id="copyCode">Copy embed code</button>
+              <button class="btn openPaywall">Remove SignalKit branding</button>
+            </div>
+            <div class="widget-preview">
+              <div class="fake-site">
+                <h4>Acme Cloud</h4>
+                <p>Billing automation for modern teams. The support widget is live in the corner.</p>
+              </div>
+              <div class="embed-window" id="widgetWindow">
+                <div class="embed-head">Acme Assistant</div>
+                <div class="embed-body" id="widgetWelcome">Hi, I am Acme Assistant. Ask me about pricing, integrations, refunds, or onboarding.</div>
+              </div>
+              <button class="bubble-launcher" id="toggleWidget">?</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="app-view" id="paywall">
+          <div class="section-head">
+            <h2>Upgrade when the bot starts saving time.</h2>
+            <p>Pricing gates are tied to real business value: more documents, more channels, analytics, lead capture, and brand control.</p>
+          </div>
+          <div class="prices">
+            <div class="price"><h3>Starter</h3><p>For one marketing site.</p><strong>$19</strong><ul><li>1 chatbot</li><li>50 docs</li><li>Basic widget</li></ul><button class="btn">Start</button></div>
+            <div class="price featured"><h3>Growth</h3><p>For active support teams.</p><strong>$79</strong><ul><li>5 chatbots</li><li>1,000 docs</li><li>Lead capture</li><li>Source analytics</li></ul><button class="btn primary">Upgrade</button></div>
+            <div class="price"><h3>Scale</h3><p>For SaaS and agencies.</p><strong>$249</strong><ul><li>Unlimited bots</li><li>White label</li><li>SSO</li><li>Priority support</li></ul><button class="btn">Talk to sales</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="shell">
+      <div class="section-head">
+        <h2>Features that make sense.</h2>
+        <p>No filler screens. The product is shaped around the path from docs to embedded customer-facing answers.</p>
+      </div>
+      <div class="features">
+        <div class="feature"><h3>Source-cited answers</h3><p>Every reply can link back to the exact uploaded document section.</p></div>
+        <div class="feature"><h3>Human handoff rules</h3><p>Escalate billing, legal, enterprise, and low-confidence questions.</p></div>
+        <div class="feature"><h3>Missing-doc insights</h3><p>Turn unanswered questions into a prioritized content backlog.</p></div>
+        <div class="feature"><h3>Lead capture</h3><p>Ask for email only when intent is high, not before the user gets value.</p></div>
+        <div class="feature"><h3>Widget personalities</h3><p>Match the assistant tone to support, sales, or onboarding pages.</p></div>
+        <div class="feature"><h3>Embed QA mode</h3><p>Preview how the assistant behaves before touching production.</p></div>
+      </div>
+    </section>
+
+    <section id="pricing" class="shell">
+      <div class="section-head">
+        <h2>Monetization built into the prototype.</h2>
+        <p>The paywall is visible at the exact moments users hit higher value: sync, analytics, branding, and scale.</p>
+      </div>
+      <div class="prices">
+        <div class="price"><h3>Starter</h3><strong>$19</strong><p>Small sites that need answers from basic docs.</p></div>
+        <div class="price featured"><h3>Growth</h3><strong>$79</strong><p>Teams that want lead capture, analytics, and integrations.</p></div>
+        <div class="price"><h3>Scale</h3><strong>$249</strong><p>Agencies and SaaS teams with many bots and white label needs.</p></div>
+      </div>
+    </section>
+
+    <section id="tutorial" class="shell">
+      <div class="section-head">
+        <h2>Written demo for reviewers.</h2>
+        <p>A quick path to evaluate the prototype without needing backend credentials.</p>
+      </div>
+      <div class="tutorial">
+        <div class="tutorial-card"><div class="shot"></div><h3>1. Start onboarding</h3><p>Click Build a bot, choose company goal, then continue to Docs.</p></div>
+        <div class="tutorial-card"><div class="shot"></div><h3>2. Add knowledge</h3><p>Click Add product docs. The source list updates and indexing animation runs.</p></div>
+        <div class="tutorial-card"><div class="shot"></div><h3>3. Test and embed</h3><p>Ask a question in Test chat, then copy the embed code from Widget.</p></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="shell">
+    SignalKit AI prototype - landing page, builder app, widget preview, paywall, and reviewer tutorial in one launch-ready clickable product.
+  </footer>
+
+  <div class="toast" id="toast">Copied to clipboard</div>
+
+  <script>
+    const views = document.querySelectorAll('.app-view');
+    const tabs = document.querySelectorAll('.tab');
+    function showView(id) {
+      views.forEach(v => v.classList.toggle('active', v.id === id));
+      tabs.forEach(t => t.classList.toggle('active', t.dataset.view === id));
+      document.querySelector('#builder').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    tabs.forEach(tab => tab.addEventListener('click', () => showView(tab.dataset.view)));
+    document.querySelector('#continueDocs').addEventListener('click', () => showView('knowledge'));
+    document.querySelectorAll('.openPaywall').forEach(btn => btn.addEventListener('click', () => showView('paywall')));
+
+    const docs = ['onboarding-guide.pdf', 'integration-matrix.csv', 'enterprise-security.pdf', 'refund-playbook.md'];
+    let docIndex = 0;
+    function addDoc() {
+      const list = document.querySelector('#docList');
+      const item = document.createElement('div');
+      item.className = 'doc';
+      item.innerHTML = `<span>${docs[docIndex % docs.length]}</span><b>indexing</b>`;
+      list.prepend(item);
+      setTimeout(() => item.querySelector('b').textContent = 'ready', 900);
+      docIndex++;
+      toast('Document added to knowledge base');
+    }
+    document.querySelector('#addDocs').addEventListener('click', addDoc);
+    document.querySelector('#dropZone').addEventListener('click', addDoc);
+
+    document.querySelector('#sendChat').addEventListener('click', () => {
+      const input = document.querySelector('#chatInput');
+      const log = document.querySelector('#chatLog');
+      const q = input.value.trim() || 'What can you answer?';
+      log.insertAdjacentHTML('beforeend', `<div class="msg user">${q}</div>`);
+      setTimeout(() => {
+        log.insertAdjacentHTML('beforeend', `<div class="msg bot">If I am unsure, I say so, cite the closest source, and offer to create a support ticket. Source: escalation-rules.md</div>`);
+        log.scrollTop = log.scrollHeight;
+      }, 450);
+      input.value = '';
+    });
+
+    const themeSelect = document.querySelector('#themeSelect');
+    const code = document.querySelector('#embedCode');
+    const embedHead = document.querySelector('.embed-head');
+    const welcome = document.querySelector('#welcomeText');
+    const widgetWelcome = document.querySelector('#widgetWelcome');
+    const colors = { mint: '#7ee2b8', gold: '#ffd86b', coral: '#ff795d' };
+    function updateWidget() {
+      const theme = themeSelect.value;
+      embedHead.style.background = colors[theme];
+      widgetWelcome.textContent = welcome.value;
+      code.textContent = `<script src="https://cdn.signalkit.ai/widget.js"\\n  data-bot="acme-cloud"\\n  data-theme="${theme}"><\\/script>`;
+    }
+    themeSelect.addEventListener('change', updateWidget);
+    welcome.addEventListener('input', updateWidget);
+
+    document.querySelector('#toggleWidget').addEventListener('click', () => {
+      const w = document.querySelector('#widgetWindow');
+      w.style.display = w.style.display === 'none' ? 'block' : 'none';
+    });
+
+    document.querySelector('#copyCode').addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(code.textContent); } catch (e) {}
+      toast('Embed code copied');
+    });
+
+    function toast(text) {
+      const t = document.querySelector('#toast');
+      t.textContent = text;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 1600);
+    }
+  </script>
+</body>
+</html>
