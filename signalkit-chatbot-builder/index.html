@@ -35,7 +35,91 @@ const tabs=Array.from(document.querySelectorAll('.tab-btn'));const panels=Array.
 const docs=[['Security overview.pdf','24 controls indexed'],['Sales objections.docx','18 objection handlers indexed'],['Integration guide.url','Watching for updates']];let docIndex=0;document.getElementById('realUpload').addEventListener('change',function(e){Array.from(e.target.files).forEach(function(f){const row=document.createElement('div');row.className='file-row';row.innerHTML='<div><b>'+f.name+'</b><br><small>Local file selected for prototype indexing</small></div><span class="tag">uploaded</span>';document.getElementById('fileList').appendChild(row)});const total=document.querySelectorAll('#fileList .file-row').length;document.getElementById('sourceCount').textContent=total+' sources';if(e.target.files.length){showToast(e.target.files.length+' file(s) added')}});document.getElementById('addDoc').addEventListener('click',function(){const item=docs[docIndex%docs.length];docIndex+=1;const row=document.createElement('div');row.className='file-row';row.innerHTML='<div><b>'+item[0]+'</b><br><small>'+item[1]+'</small></div><span class="tag">ready</span>';document.getElementById('fileList').appendChild(row);const total=document.querySelectorAll('#fileList .file-row').length;document.getElementById('sourceCount').textContent=total+' sources';showToast('Demo source added')});
 document.getElementById('sendChat').addEventListener('click',function(){const input=document.getElementById('chatInput');const messages=document.getElementById('messages');const q=input.value.trim()||'How do I add this to my site?';const u=document.createElement('div');u.className='message user';u.textContent=q;messages.appendChild(u);setTimeout(function(){const b=document.createElement('div');b.className='message bot';b.textContent='Yes. SignalKit supports Webflow, Framer, WordPress and custom sites with the same embed script. Paid plans unlock lead capture and analytics automatically.';messages.appendChild(b);messages.scrollTop=messages.scrollHeight},260);input.value=''});
 document.getElementById('welcome').addEventListener('input',function(e){document.querySelector('#widgetBody .message.bot').textContent=e.target.value||'Hi, ask me anything.'});document.getElementById('copyCode').addEventListener('click',async function(){const code=document.getElementById('embedCode').textContent;try{await navigator.clipboard.writeText(code)}catch(e){}document.getElementById('copyNote').textContent='Embed code copied. Paste it into your website.';showToast('Embed code copied')});
-document.getElementById('runAudit').addEventListener('click',function(){const result=document.getElementById('auditResult');const score=document.getElementById('score');score.textContent='98';result.textContent='Audit complete: ready to publish. Suggested next step: enable CRM handoff before paid traffic.';showToast('Launch audit completed')});</script></body></html>
+document.getElementById('runAudit').addEventListener('click',function(){const result=document.getElementById('auditResult');const score=document.getElementById('score');score.textContent='98';result.textContent='Audit complete: ready to publish. Suggested next step: enable CRM handoff before paid traffic.';showToast('Launch audit completed')});</script><style id="mobile-polish">
+@media (max-width: 760px) {
+  body { overflow-x: hidden; }
+  .wrap { width: min(100% - 24px, 1180px) !important; }
+  .nav { position: relative !important; }
+  .nav-inner { min-height: 58px !important; padding: 10px 0 !important; flex-direction: row !important; align-items: center !important; gap: 10px !important; }
+  .brand { gap: 8px !important; min-width: 0 !important; font-size: 15px !important; }
+  .brand .mark, .mark { width: 34px !important; height: 34px !important; border-radius: 11px !important; flex: 0 0 auto !important; }
+  .brand small { display: none !important; }
+  .links { flex-wrap: nowrap !important; overflow-x: auto !important; gap: 7px !important; padding: 2px 0 4px !important; max-width: 48vw !important; scrollbar-width: none !important; }
+  .links::-webkit-scrollbar { display: none !important; }
+  .links a { flex: 0 0 auto !important; padding: 8px 10px !important; font-size: 12px !important; }
+  .links a:not(.primary):not([href="#prototype"]) { display: none !important; }
+
+  .hero { padding: 34px 0 34px !important; }
+  .hero-grid { grid-template-columns: 1fr !important; gap: 22px !important; }
+  .eyebrow { font-size: 11px !important; padding: 7px 10px !important; }
+  .hero h1 { font-size: clamp(34px, 11.5vw, 46px) !important; line-height: .96 !important; letter-spacing: -.055em !important; margin: 16px 0 12px !important; }
+  .lead { font-size: 16px !important; margin-bottom: 18px !important; }
+  .actions { margin-bottom: 18px !important; gap: 8px !important; }
+  .btn, .ghost-btn, .primary-btn { padding: 10px 13px !important; font-size: 13px !important; }
+  .metrics { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 7px !important; }
+  .metric { padding: 11px 9px !important; border-radius: 15px !important; min-height: 84px !important; }
+  .metric strong { font-size: 21px !important; line-height: 1 !important; }
+  .metric span { font-size: 11px !important; line-height: 1.2 !important; }
+
+  .hero-product { min-height: auto !important; }
+  .device { position: relative !important; width: 100% !important; inset: auto !important; transform: none !important; animation: none !important; border-radius: 24px !important; padding: 12px !important; }
+  .screen { min-height: auto !important; padding: 12px !important; border-radius: 18px !important; }
+  .screen-head { margin-bottom: 10px !important; }
+  .doc-stack { gap: 7px !important; margin: 10px 0 !important; }
+  .doc-line { padding: 9px 10px !important; border-radius: 12px !important; }
+  .doc-line b { font-size: 12px !important; }
+  .doc-line span { font-size: 10px !important; }
+  .chat-mini { padding: 10px !important; border-radius: 15px !important; gap: 7px !important; }
+  .bubble { font-size: 12px !important; padding: 9px 10px !important; max-width: 92% !important; }
+  .widget-card { display: none !important; }
+
+  section { padding: 40px 0 !important; }
+  .section-head { gap: 10px !important; margin-bottom: 16px !important; }
+  .section-head h2 { font-size: clamp(30px, 10vw, 40px) !important; line-height: .98 !important; letter-spacing: -.055em !important; }
+  .section-head p { font-size: 15px !important; }
+  .brief { grid-template-columns: 1fr !important; padding: 22px !important; border-radius: 24px !important; }
+  .brief h3 { font-size: 27px !important; }
+  .brief p { font-size: 15px !important; }
+
+  .flow { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 9px !important; }
+  .step { min-height: auto !important; padding: 14px !important; border-radius: 18px !important; }
+  .num { width: 30px !important; height: 30px !important; border-radius: 10px !important; margin-bottom: 12px !important; font-size: 13px !important; }
+  .step h3 { font-size: 16px !important; line-height: 1.08 !important; }
+  .step p { font-size: 12px !important; line-height: 1.28 !important; }
+
+  .app-shell { padding: 10px !important; border-radius: 24px !important; }
+  .app-top { padding: 5px 4px 10px !important; align-items: flex-start !important; }
+  .app-logo { font-size: 14px !important; }
+  .status { display: none !important; }
+  .app-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
+  .side { display: flex !important; overflow-x: auto !important; border-radius: 18px !important; padding: 8px !important; scrollbar-width: none !important; }
+  .side::-webkit-scrollbar { display: none !important; }
+  .tab-btn { width: auto !important; flex: 0 0 auto !important; white-space: nowrap !important; padding: 10px 12px !important; font-size: 12px !important; }
+  .workspace { min-height: auto !important; border-radius: 20px !important; }
+  .tab-panel { padding: 16px !important; }
+  .panel-title { flex-direction: column !important; gap: 8px !important; margin-bottom: 14px !important; }
+  .panel-title h3 { font-size: 25px !important; }
+  .grid-2, .chat-layout, .widget-builder, .plans, .tutorial, .wow-grid, .score-row { grid-template-columns: 1fr !important; }
+  .upload-zone { padding: 16px !important; border-radius: 18px !important; }
+  .chat-box { min-height: 340px !important; }
+  .messages { max-height: 260px !important; }
+  .widget-live, .plan, .review-shot, .check, .script, .shot, .wow-wrap { border-radius: 20px !important; }
+  .code-box { font-size: 11px !important; min-height: 145px !important; }
+  .review-grid, .checklist { grid-template-columns: 1fr !important; }
+  .mini-ui { min-height: auto !important; }
+  .shot { grid-template-columns: 52px 1fr !important; padding: 14px !important; }
+  .shot-num { width: 52px !important; height: 52px !important; border-radius: 16px !important; font-size: 22px !important; }
+  .cta { padding: 24px !important; border-radius: 24px !important; }
+  .cta h2 { font-size: clamp(30px, 10vw, 42px) !important; }
+}
+
+@media (max-width: 390px) {
+  .metrics { grid-template-columns: 1fr !important; }
+  .flow { grid-template-columns: 1fr !important; }
+  .links { max-width: 42vw !important; }
+}
+</style></body></html>
+
 
 
 
